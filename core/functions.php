@@ -91,3 +91,46 @@ function upload_file(array $file, array $allowedTypes, string $targetDir, array 
     }
     return null;
 }
+
+function send_email(string $to, string $subject, string $body, string $replyTo = ''): bool
+{
+    $resendApiKey = getenv('RESEND_API_KEY');
+    
+    // If a Resend API key is provided, use Resend API
+    if ($resendApiKey) {
+        $ch = curl_init('https://api.resend.com/emails');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $resendApiKey,
+            'Content-Type: application/json'
+        ]);
+        
+        $payload = [
+            'from' => 'Acme <onboarding@resend.dev>', // Resend trial requires this from address
+            'to' => [$to],
+            'subject' => $subject,
+            'html' => nl2br(htmlspecialchars($body)),
+        ];
+        
+        if ($replyTo) {
+            $payload['reply_to'] = $replyTo;
+        }
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        return $httpCode >= 200 && $httpCode < 300;
+    }
+    
+    // Fallback to PHP's built-in mail() function
+    $headers = 'From: no-reply@' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . "\r\n";
+    if ($replyTo) {
+        $headers .= 'Reply-To: ' . $replyTo . "\r\n";
+    }
+    $headers .= 'Content-Type: text/plain; charset=UTF-8' . "\r\n";
+    
+    return @mail($to, $subject, $body, $headers);
+}

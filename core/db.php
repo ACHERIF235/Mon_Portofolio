@@ -1,37 +1,36 @@
 <?php
 $config = require __DIR__ . '/../config.php';
 
-try {
-    $pdo = new PDO(
-        'mysql:host=' . $config['db_host'] . ';dbname=' . $config['db_name'] . ';charset=utf8mb4',
-        $config['db_user'],
-        $config['db_pass'],
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
-    );
-} catch (PDOException $e) {
-    die('Erreur de connexion à la base de données : ' . htmlspecialchars($e->getMessage()));
+// Connection handled by DatabaseFactory
+require_once __DIR__ . '/DatabaseFactory.php';
+
+function db()
+{
+    // Retro-compatibility, returns the interface instance
+    return DatabaseFactory::getInstance();
 }
 
-function db(): PDO
+function db_query(string $sql, array $params = [])
 {
-    global $pdo;
-    return $pdo;
-}
-
-function db_query(string $sql, array $params = []): PDOStatement
-{
-    $stmt = db()->prepare($sql);
-    $stmt->execute($params);
-    return $stmt;
+    $db = DatabaseFactory::getInstance();
+    // If it's SELECT, we might want to return something iterable, but the legacy code 
+    // uses db_query to return PDOStatement, then calls fetch() or fetchAll().
+    // The codebase actually uses db_fetch and db_fetchAll directly mostly.
+    // For INSERT/UPDATE/DELETE, execute is called.
+    if (stripos(trim($sql), 'SELECT') === 0) {
+        return $db->query($sql, $params);
+    } else {
+        return $db->execute($sql, $params);
+    }
 }
 
 function db_fetchAll(string $sql, array $params = []): array
 {
-    return db_query($sql, $params)->fetchAll();
+    return DatabaseFactory::getInstance()->fetchAll($sql, $params);
 }
 
 function db_fetch(string $sql, array $params = []): ?array
 {
-    $result = db_query($sql, $params)->fetch();
+    $result = DatabaseFactory::getInstance()->fetch($sql, $params);
     return $result ?: null;
 }

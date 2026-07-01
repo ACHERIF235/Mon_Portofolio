@@ -8,11 +8,7 @@ class AdminController
 {
     public static function requireAdmin(): void
     {
-        if (empty($_SESSION['admin_id'])) {
-            header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
-            View::render('admin/403', ['message' => 'Accès refusé. Vous devez être connecté pour accéder à cette page.']);
-            exit;
-        }
+        require_admin();
     }
 
     public static function dashboard(): void
@@ -251,11 +247,7 @@ class AdminController
 
         $adminEmail = SettingModel::get('contact_email', 'alifa.acherif1@ugb.edu.sn');
         
-        $headers = 'From: ' . $adminEmail . "\r\n";
-        $headers .= 'Reply-To: ' . $adminEmail . "\r\n";
-        $headers .= 'Content-Type: text/plain; charset=UTF-8\r\n';
-
-        $sent = @mail($email, $subject, $message, $headers);
+        $sent = send_email($email, $subject, $message, $adminEmail);
 
         // Simulation de succès sur localhost
         if (!$sent && (in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1']))) {
@@ -264,7 +256,7 @@ class AdminController
 
         if ($sent) {
             if ($id) {
-                db_query("UPDATE inbox_messages SET is_replied = 1, is_read = 1 WHERE id = :id", ['id' => $id]);
+                db_query("UPDATE inbox_messages SET is_replied = :replied, is_read = :read WHERE id = :id", ['replied' => 1, 'read' => 1, 'id' => $id]);
             }
             flash('Votre réponse a été envoyée avec succès.');
         } else {

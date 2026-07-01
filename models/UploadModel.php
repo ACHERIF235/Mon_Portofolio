@@ -19,11 +19,40 @@ class UploadModel
             return null;
         }
 
+        $destinationName = sprintf('%s-%s.%s', time(), bin2hex(random_bytes(8)), $extension);
+        $config = require __DIR__ . '/../config.php';
+        
+        $dbType = $_ENV['DB_TYPE'] ?? $config['db_type'] ?? 'mysql';
+        
+        if ($dbType === 'supabase') {
+            // Upload to Supabase Storage
+            $url = rtrim($config['supabase_url'] ?? '', '/') . '/storage/v1/object/uploads/' . $destinationName;
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'apikey: ' . ($config['supabase_key'] ?? ''),
+                'Authorization: Bearer ' . ($config['supabase_auth_token'] ?? ''),
+                'Content-Type: ' . $mimeType
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents($file['tmp_name']));
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpCode >= 200 && $httpCode < 300) {
+                // Return public URL
+                return rtrim($config['supabase_url'] ?? '', '/') . '/storage/v1/object/public/uploads/' . $destinationName;
+            }
+            return null;
+        }
+
         if (!is_dir($targetDir) && !mkdir($targetDir, 0755, true) && !is_dir($targetDir)) {
             return null;
         }
 
-        $destinationName = sprintf('%s-%s.%s', time(), bin2hex(random_bytes(8)), $extension);
         $destinationPath = rtrim($targetDir, '/\\') . DIRECTORY_SEPARATOR . $destinationName;
 
         if (move_uploaded_file($file['tmp_name'], $destinationPath)) {

@@ -1,8 +1,11 @@
 <?php
 $title = $settings['hero_name_' . $lang] ?? 'Portfolio';
 $accent = $settings['accent_color'] ?? '#D4A843'; // Dynamic accent color from admin
-$profileImage = !empty($settings['profile_photo']) ? 'assets/uploads/' . $settings['profile_photo'] : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80';
-$resumeFile = !empty($settings['resume_file']) ? 'assets/uploads/' . $settings['resume_file'] : null;
+$profileImageRaw = $settings['profile_photo'] ?? '';
+$profileImage = !empty($profileImageRaw) ? (str_starts_with($profileImageRaw, 'http') ? $profileImageRaw : 'assets/uploads/' . $profileImageRaw) : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80';
+
+$resumeFileRaw = $settings['resume_file'] ?? '';
+$resumeFile = !empty($resumeFileRaw) ? (str_starts_with($resumeFileRaw, 'http') ? $resumeFileRaw : 'assets/uploads/' . $resumeFileRaw) : null;
 
 function safeText(string $text): string {
     return nl2br(htmlspecialchars($text, ENT_QUOTES, 'UTF-8'));

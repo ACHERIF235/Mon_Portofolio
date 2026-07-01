@@ -59,13 +59,10 @@ class PublicController
             $lang === 'fr' ? 'Message' : 'Message',
             $message
         );
-        $headers = 'From: no-reply@' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . "\r\n";
-        $headers .= 'Reply-To: ' . $email . "\r\n";
-        $headers .= 'Content-Type: text/plain; charset=UTF-8\r\n';
-        $sent = @mail($destinationEmail, $subject, $body, $headers);
+        $sent = send_email($destinationEmail, $subject, $body, $email);
 
         // Sur un environnement local (XAMPP), la fonction mail() échoue souvent sans configuration SMTP.
-        // Puisque le message est bien sauvegardé en base de données, on force le succès.
+        // Puisque le message est bien sauvegardé en base de données, on force le succès si on est en local et qu'on a pas configuré Resend.
         if (!$sent && (in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1']))) {
             $sent = true;
         }
