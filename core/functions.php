@@ -106,8 +106,11 @@ function send_email(string $to, string $subject, string $body, string $replyTo =
             'Content-Type: application/json'
         ]);
         
+        $fromEmail = getenv('RESEND_FROM_EMAIL') ?: ($_SERVER['RESEND_FROM_EMAIL'] ?? ($_ENV['RESEND_FROM_EMAIL'] ?? 'onboarding@resend.dev'));
+        $fromName = getenv('RESEND_FROM_NAME') ?: ($_SERVER['RESEND_FROM_NAME'] ?? ($_ENV['RESEND_FROM_NAME'] ?? 'Portfolio Contact'));
+        
         $payload = [
-            'from' => 'Acme <onboarding@resend.dev>', // Resend trial requires this from address
+            'from' => sprintf('%s <%s>', $fromName, $fromEmail),
             'to' => [$to],
             'subject' => $subject,
             'html' => nl2br(htmlspecialchars($body)),

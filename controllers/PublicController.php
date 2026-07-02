@@ -48,7 +48,7 @@ class PublicController
 
         MessageModel::create($name, $email, $message);
 
-        $destinationEmail = 'alifa.acherif1@ugb.edu.sn';
+        $destinationEmail = SettingModel::get('contact_email', 'alifa.acherif1@ugb.edu.sn');
         $subject = $lang === 'fr' ? 'Nouveau message de contact' : 'New contact message';
         $body = sprintf(
             "%s: %s\n%s: %s\n\n%s:\n%s",
