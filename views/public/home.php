@@ -91,22 +91,48 @@ if ($themeMode === 'dark') {
     <div class="noise-overlay" style="filter: url(#noise);"></div>
 
     <!-- A. NAVBAR -->
-    <nav id="navbar" class="fixed top-4 md:top-6 left-1/2 -translate-x-1/2 z-40 bg-transparent transition-all duration-500 rounded-full px-5 md:px-8 py-3 md:py-4 flex justify-between items-center gap-4 md:gap-12 border border-transparent w-[95%] max-w-max md:w-auto">
+    <nav id="navbar" class="fixed top-4 md:top-6 left-1/2 -translate-x-1/2 z-50 bg-transparent transition-all duration-500 rounded-full px-5 md:px-8 py-3 md:py-4 flex justify-between items-center gap-4 md:gap-12 border border-transparent w-[95%] max-w-max md:w-auto">
         <div class="font-sans font-bold tracking-tight text-xl text-creme shrink-0">
             <?= htmlspecialchars(substr($heroName, 0, 2)) ?>.
         </div>
+        
+        <!-- Desktop Menu -->
         <div class="hidden md:flex gap-8 text-sm font-medium shrink-0">
             <a href="#about" class="text-creme hover:text-or transition-colors hover-lift"><?= $lang === 'fr' ? 'À propos' : 'About' ?></a>
             <a href="#experience" class="text-creme hover:text-or transition-colors hover-lift"><?= $lang === 'fr' ? 'Projets' : 'Projects' ?></a>
             <a href="#skills" class="text-creme hover:text-or transition-colors hover-lift"><?= $lang === 'fr' ? 'Compétences' : 'Skills' ?></a>
             <a href="#contact" class="text-creme hover:text-or transition-colors hover-lift">Contact</a>
         </div>
+        
+        <div class="flex items-center gap-4">
+            <?php if ($resumeFile): ?>
+                <a href="<?= htmlspecialchars($resumeFile) ?>" download class="hidden md:flex bg-or text-charbon px-5 py-2 md:px-6 md:py-2.5 rounded-full font-semibold magnet-btn text-sm shrink-0">
+                    <?= $lang === 'fr' ? 'CV' : 'CV' ?>
+                </a>
+            <?php endif; ?>
+            
+            <!-- Mobile Menu Toggle -->
+            <button id="mobileMenuBtn" class="md:hidden text-creme hover:text-or transition-colors flex items-center justify-center p-2">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenu" class="fixed inset-0 bg-charbon/98 backdrop-blur-md z-40 flex flex-col items-center justify-center gap-8 opacity-0 pointer-events-none transition-all duration-300 transform scale-105">
+        <button id="closeMenuBtn" class="absolute top-6 right-6 text-creme hover:text-or p-2">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+        <a href="#about" class="mobile-link text-3xl font-serif text-creme hover:text-or transition-colors"><?= $lang === 'fr' ? 'À propos' : 'About' ?></a>
+        <a href="#experience" class="mobile-link text-3xl font-serif text-creme hover:text-or transition-colors"><?= $lang === 'fr' ? 'Projets' : 'Projects' ?></a>
+        <a href="#skills" class="mobile-link text-3xl font-serif text-creme hover:text-or transition-colors"><?= $lang === 'fr' ? 'Compétences' : 'Skills' ?></a>
+        <a href="#contact" class="mobile-link text-3xl font-serif text-creme hover:text-or transition-colors">Contact</a>
         <?php if ($resumeFile): ?>
-            <a href="<?= htmlspecialchars($resumeFile) ?>" download class="bg-or text-charbon px-5 py-2 md:px-6 md:py-2.5 rounded-full font-semibold magnet-btn text-sm shrink-0">
-                <?= $lang === 'fr' ? 'CV' : 'CV' ?>
+            <a href="<?= htmlspecialchars($resumeFile) ?>" download class="mobile-link bg-or text-charbon px-8 py-3 mt-4 rounded-full font-bold text-lg">
+                <?= $lang === 'fr' ? 'Télécharger CV' : 'Download CV' ?>
             </a>
         <?php endif; ?>
-    </nav>
+    </div>
 
     <main class="w-full overflow-hidden">
         <!-- B. HERO SECTION -->
@@ -394,6 +420,31 @@ if ($themeMode === 'dark') {
                 document.body.style.overflow = '';
             }, 300);
         }
+
+        // Mobile Menu Logic
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        function openMobileMenu() {
+            mobileMenu.classList.remove('pointer-events-none', 'opacity-0', 'scale-105');
+            mobileMenu.classList.add('opacity-100', 'scale-100');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('opacity-100', 'scale-100');
+            mobileMenu.classList.add('opacity-0', 'scale-105', 'pointer-events-none');
+            document.body.style.overflow = '';
+        }
+
+        mobileMenuBtn.addEventListener('click', openMobileMenu);
+        closeMenuBtn.addEventListener('click', closeMobileMenu);
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
     </script>
 </body>
 </html>
