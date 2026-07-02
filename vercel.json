@@ -1,29 +1,29 @@
 {
     "functions": {
-        "**/*.php": {
+        "api/**/*.php": {
             "runtime": "vercel-php@0.9.2"
         }
     },
     "routes": [
         {
-            "src": "/admin/(.*\\.php)",
-            "dest": "/admin/$1"
-        },
-        {
-            "src": "/admin/.*",
-            "dest": "/admin/index.php"
-        },
-        {
             "src": "/assets/(.*)",
             "dest": "/assets/$1"
         },
         {
+            "src": "/admin/?",
+            "dest": "/api/proxy.php?file=admin/index.php"
+        },
+        {
+            "src": "/(admin/.*\\.php)",
+            "dest": "/api/proxy.php?file=$1"
+        },
+        {
             "src": "/(.*\\.php)",
-            "dest": "/$1"
+            "dest": "/api/proxy.php?file=$1"
         },
         {
             "src": "/(.*)",
-            "dest": "/index.php"
+            "dest": "/api/proxy.php?file=index.php"
         }
     ]
 }
