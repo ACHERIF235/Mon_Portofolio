@@ -203,7 +203,7 @@ class SupabaseDatabase implements DatabaseInterface
     private function extractFilters(string $sql, array $params): array
     {
         $filters = [];
-        if (preg_match('/WHERE\s+(\w+)\s*=\s*:(\w+)/i', $sql, $matches)) {
+        if (preg_match('/WHERE\s+`?(\w+)`?\s*=\s*:(\w+)/i', $sql, $matches)) {
             $filters[$matches[1]] = $params[$matches[2]] ?? null;
         }
         return $filters;
@@ -231,7 +231,10 @@ class SupabaseDatabase implements DatabaseInterface
     private function extractUpdateData(string $sql, array $params): array
     {
         $data = [];
-        if (preg_match_all('/`?(\w+)`\?\s*=\s*:(\w+)/i', $sql, $matches)) {
+        $parts = preg_split('/WHERE/i', $sql, 2);
+        $setPart = $parts[0];
+        
+        if (preg_match_all('/`?(\w+)`?\s*=\s*:(\w+)/i', $setPart, $matches)) {
             foreach ($matches[2] as $i => $param) {
                 if (isset($params[$param])) {
                     $data[$matches[1][$i]] = $params[$param];

@@ -135,7 +135,7 @@ if ($themeMode === 'dark') {
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-4 hero-item w-full sm:w-auto px-4 sm:px-0">
-                    <a href="#contact" class="bg-or text-white px-8 py-4 rounded-full font-semibold magnet-btn w-full sm:w-auto text-center shadow-lg">
+                    <a href="#contact" class="bg-or text-charbon px-8 py-4 rounded-full font-semibold magnet-btn w-full sm:w-auto text-center shadow-lg">
                         <?= $lang === 'fr' ? 'Me contacter' : 'Contact Me' ?>
                     </a>
                     <a href="#experience" class="border-2 border-or/30 text-creme px-8 py-4 rounded-full font-medium hover:bg-or/10 transition-colors magnet-btn w-full sm:w-auto text-center">
