@@ -120,7 +120,9 @@ function send_email(string $to, string $subject, string $body, string $replyTo =
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        if (is_resource($ch)) {
+            curl_close($ch);
+        }
         
         return $httpCode >= 200 && $httpCode < 300;
     }

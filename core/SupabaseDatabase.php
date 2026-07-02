@@ -57,7 +57,9 @@ class SupabaseDatabase implements DatabaseInterface
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        if (is_resource($ch)) {
+            curl_close($ch);
+        }
 
         if ($httpCode >= 400) {
             throw new RuntimeException("Supabase API error: HTTP $httpCode - $response");

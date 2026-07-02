@@ -21,15 +21,15 @@ class DatabaseFactory
             $config = require __DIR__ . '/../config.php';
             
             // Détection du type de DB via config ou variable d'environnement
-            $dbType = $_ENV['DB_TYPE'] ?? $config['db_type'] ?? 'mysql';
+            $dbType = getenv('DB_TYPE') ?: $config['db_type'] ?: 'mysql';
             
             switch ($dbType) {
                 case 'supabase':
-                    self::$instance = new SupabaseDatabase(
-                        $config['supabase_url'] ?? $_ENV['SUPABASE_URL'],
-                        $config['supabase_key'] ?? $_ENV['SUPABASE_KEY'],
-                        $config['supabase_auth_token'] ?? $_ENV['SUPABASE_AUTH_TOKEN'] ?? null
-                    );
+                    $url = getenv('SUPABASE_URL') ?: $config['supabase_url'] ?: '';
+                    $key = getenv('SUPABASE_KEY') ?: $config['supabase_key'] ?: '';
+                    $authToken = getenv('SUPABASE_AUTH_TOKEN') ?: $config['supabase_auth_token'] ?: null;
+                    
+                    self::$instance = new SupabaseDatabase($url, $key, $authToken);
                     break;
                     
                 case 'mysql':

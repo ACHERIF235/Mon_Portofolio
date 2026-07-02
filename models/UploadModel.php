@@ -40,7 +40,9 @@ class UploadModel
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            if (is_resource($ch)) {
+                curl_close($ch);
+            }
             
             if ($httpCode >= 200 && $httpCode < 300) {
                 // Return public URL
