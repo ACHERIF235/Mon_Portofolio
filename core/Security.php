@@ -11,15 +11,36 @@ function validate_email(string $email): ?string
 
 function generate_csrf_token(): string
 {
-    if (empty($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
+    $token = '';
+    if (!empty($_SESSION['csrf_token'])) {
+        $token = $_SESSION['csrf_token'];
+    } elseif (!empty($_COOKIE['csrf_token'])) {
+        $token = $_COOKIE['csrf_token'];
+        $_SESSION['csrf_token'] = $token;
+    } else {
+        $token = bin2hex(random_bytes(16));
+        $_SESSION['csrf_token'] = $token;
+        
+        $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+        setcookie('csrf_token', $token, [
+            'expires' => 0,
+            'path' => '/',
+            'secure' => $isSecure,
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
     }
-    return $_SESSION['csrf_token'];
+    return $token;
 }
 
 function verify_csrf_token(?string $token): bool
 {
-    return !empty($token) && !empty($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+    if (empty($token)) {
+        return false;
+    }
+    
+    $expected = $_SESSION['csrf_token'] ?? $_COOKIE['csrf_token'] ?? '';
+    return !empty($expected) && hash_equals($expected, $token);
 }
 
 function safe_file_name(string $fileName): string
