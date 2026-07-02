@@ -51,7 +51,22 @@ function is_logged_in(): bool {
     }
 
     $token = $_COOKIE['admin_token'] ?? '';
-    return !empty($token) && decode_jwt($token) !== null;
+    if (!empty($token) && decode_jwt($token) !== null) {
+        return true;
+    }
+
+    $vercelToken = $_COOKIE['vercel_jwt'] ?? '';
+    if (!empty($vercelToken)) {
+        $payload = decode_jwt($vercelToken);
+        if ($payload !== null) {
+            $_SESSION['admin_logged_in'] = true;
+            $_SESSION['admin_id'] = $payload['userId'] ?? $payload['admin_id'] ?? null;
+            $_SESSION['admin_email'] = $payload['email'] ?? $payload['userEmail'] ?? null;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 function require_admin(): void {
@@ -69,8 +84,14 @@ function authenticate_admin(string $email, string $password): bool {
             'admin_id' => $user['id'],
             'email' => $user['email']
         ]);
-        
-        // Secure cookie flags
+
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $_SESSION['admin_logged_in'] = true;
+        $_SESSION['admin_id'] = $user['id'];
+        $_SESSION['admin_email'] = $user['email'];
+
         $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
         setcookie('admin_token', $token, [
             'expires' => time() + (86400 * 7),
@@ -79,7 +100,7 @@ function authenticate_admin(string $email, string $password): bool {
             'httponly' => true,
             'samesite' => 'Lax'
         ]);
-        
+
         return true;
     }
     return false;
@@ -87,6 +108,10 @@ function authenticate_admin(string $email, string $password): bool {
 
 function admin_logout(): void {
     setcookie('admin_token', '', [
+        'expires' => time() - 3600,
+        'path' => '/'
+    ]);
+    setcookie('vercel_jwt', '', [
         'expires' => time() - 3600,
         'path' => '/'
     ]);

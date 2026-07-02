@@ -10,10 +10,17 @@ class AuthController
             $email = sanitize_text($_POST['email'] ?? '');
             $password = trim($_POST['password'] ?? '');
 
-            if (AdminUserModel::verifyCredentials($email, $password)) {
+            if (authenticate_admin($email, $password)) {
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_start();
+                }
                 session_regenerate_id(true);
                 $user = AdminUserModel::findByEmail($email);
-                $_SESSION['admin_id'] = $user['id'];
+                if ($user) {
+                    $_SESSION['admin_logged_in'] = true;
+                    $_SESSION['admin_id'] = $user['id'];
+                    $_SESSION['admin_email'] = $user['email'];
+                }
                 header('Location: dashboard.php');
                 exit;
             }
@@ -31,6 +38,7 @@ class AuthController
         if (ini_get('session.use_cookies')) {
             setcookie(session_name(), '', time() - 42000, '/');
         }
+        admin_logout();
         session_destroy();
         header('Location: login.php');
         exit;
