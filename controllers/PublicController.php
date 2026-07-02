@@ -61,16 +61,11 @@ class PublicController
         );
         $sent = send_email($destinationEmail, $subject, $body, $email);
 
-        // Sur un environnement local (XAMPP), la fonction mail() échoue souvent sans configuration SMTP.
-        // Puisque le message est bien sauvegardé en base de données, on force le succès si on est en local et qu'on a pas configuré Resend.
-        if (!$sent && (in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1']))) {
-            $sent = true;
-        }
+        // Puisque le message est bien sauvegardé en base de données (MessageModel::create plus haut),
+        // on indique un succès à l'utilisateur même si l'envoi d'email de notification échoue (ex: Vercel bloque mail() natif).
+        $sent = true;
 
-        $redirect = 'index.php?lang=' . $lang . '&sent=' . ($sent ? '1' : '0');
-        if (!$sent) {
-            $redirect .= '&mail_error=1';
-        }
+        $redirect = 'index.php?lang=' . $lang . '&sent=1';
 
         header('Location: ' . $redirect);
         exit;
