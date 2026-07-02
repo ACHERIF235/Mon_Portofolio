@@ -14,9 +14,9 @@ class SupabaseDatabase implements DatabaseInterface
 
     public function __construct(string $url, string $key, ?string $authToken = null)
     {
-        $this->url = rtrim($url, '/');
-        $this->key = $key;
-        $this->authToken = $authToken ?? $key;
+        $this->url = rtrim(trim($url), '/');
+        $this->key = trim($key);
+        $this->authToken = trim($authToken ?? $key);
     }
 
     /**
@@ -43,6 +43,9 @@ class SupabaseDatabase implements DatabaseInterface
             $url .= '?' . implode('&', $filters);
             unset($data['filters']);
         }
+        
+        // Fallback: send apikey in URL in case headers are stripped by a proxy
+        $url .= (strpos($url, '?') !== false ? '&' : '?') . 'apikey=' . urlencode($this->key);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -62,7 +65,8 @@ class SupabaseDatabase implements DatabaseInterface
         }
 
         if ($httpCode >= 400) {
-            throw new RuntimeException("Supabase API error: HTTP $httpCode - $response");
+            $safeKey = substr($this->key, 0, 5) . '*** (len: ' . strlen($this->key) . ')';
+            throw new RuntimeException("Supabase API error: HTTP $httpCode - $response [DEBUG: $safeKey]");
         }
 
         return json_decode($response, true) ?? [];
