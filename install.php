@@ -23,15 +23,15 @@ if ($sql === false) {
 
 db()->exec($sql);
 
-$adminPassword = password_hash('Admin123!', PASSWORD_DEFAULT);
-$existingAdmin = db_fetch('SELECT id FROM admin_users WHERE email = :email', ['email' => 'admin@portfolio.local']);
+$adminPassword = password_hash('acherif235@', PASSWORD_DEFAULT);
+$existingAdmin = db_fetch('SELECT id FROM admin_users WHERE email = :email', ['email' => 'alifa.acherif1@ugb.edu.sn']);
 if (!$existingAdmin) {
     db_query('INSERT INTO admin_users (email, password_hash, name) VALUES (:email, :hash, :name)', [
-        'email' => 'admin@portfolio.local',
+        'email' => 'alifa.acherif1@ugb.edu.sn',
         'hash' => $adminPassword,
         'name' => 'Admin Portfolio'
     ]);
-    echo "Compte administrateur créé : admin@portfolio.local / Admin123!\n";
+    echo "Compte administrateur créé : alifa.acherif1@ugb.edu.sn / acherif235@\n";
 } else {
     echo "Compte administrateur déjà existant.\n";
 }

@@ -164,7 +164,7 @@ INSERT INTO contacts (type, label_fr, label_en, value, order_index) VALUES
 ('phone', 'Téléphone', 'Phone', '+235 66 45 39 03', 2);
 
 -- Créer l'administrateur par défaut
--- Le mot de passe 'Admin123!' sera hashé par l'application
+-- Le mot de passe 'acherif235@' sera hashé par l'application
 INSERT INTO admin_users (email, password_hash, name) VALUES
-('admin@portfolio.local', '$2y$10$placeholder_hash_to_be_updated', 'Admin Portfolio')
+('alifa.acherif1@ugb.edu.sn', '$2y$10$placeholder_hash_to_be_updated', 'Admin Portfolio')
 ON CONFLICT (email) DO NOTHING;

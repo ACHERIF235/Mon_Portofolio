@@ -64,20 +64,20 @@ echo "\n";
 // Étape 2: Mettre à jour le mot de passe admin
 echo "Étape 2: Configuration du mot de passe admin...\n";
 
-$adminPassword = password_hash('Admin123!', PASSWORD_DEFAULT);
+$adminPassword = password_hash('acherif235@', PASSWORD_DEFAULT);
 
 try {
     // Vérifier si l'admin existe
     $existingAdmin = $db->fetch(
         "SELECT id FROM admin_users WHERE email = :email LIMIT 1",
-        ['email' => 'admin@portfolio.local']
+        ['email' => 'alifa.acherif1@ugb.edu.sn']
     );
     
     if ($existingAdmin) {
         // Mettre à jour le mot de passe
         $db->execute(
             "UPDATE admin_users SET password_hash = :hash WHERE email = :email",
-            ['hash' => $adminPassword, 'email' => 'admin@portfolio.local']
+            ['hash' => $adminPassword, 'email' => 'alifa.acherif1@ugb.edu.sn']
         );
         echo "✓ Mot de passe admin mis à jour\n";
     } else {
@@ -85,7 +85,7 @@ try {
         $db->execute(
             "INSERT INTO admin_users (email, password_hash, name) VALUES (:email, :hash, :name)",
             [
-                'email' => 'admin@portfolio.local',
+                'email' => 'alifa.acherif1@ugb.edu.sn',
                 'hash' => $adminPassword,
                 'name' => 'Admin Portfolio'
             ]
@@ -101,6 +101,6 @@ try {
 echo "\n=== Configuration terminée ===\n";
 echo "\n✓ DB_TYPE est déjà configuré sur 'supabase' dans config.php\n";
 echo "\nIdentifiants admin:\n";
-echo "Email: admin@portfolio.local\n";
-echo "Mot de passe: Admin123!\n";
+echo "Email: alifa.acherif1@ugb.edu.sn\n";
+echo "Mot de passe: acherif235@\n";
 echo "\nVous pouvez maintenant tester l'application!\n";
