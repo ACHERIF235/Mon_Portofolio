@@ -10,5 +10,15 @@
     <link rel="stylesheet" href="<?= View::escape($basePath ?? '') ?>assets/css/style.css">
     <meta name="description" content="Portfolio personnel moderne et responsive.">
     <style>:root { --accent: <?= View::escape($accent ?? '#c9a227') ?>; }</style>
+    <?php
+    $faviconUrl = ($basePath ?? '') . 'assets/images/favicon.ico';
+    if (isset($settings['profile_photo']) && !empty($settings['profile_photo'])) {
+        $faviconUrl = $settings['profile_photo'];
+    } elseif (class_exists('SettingModel')) {
+        $photo = SettingModel::get('profile_photo');
+        if ($photo) $faviconUrl = $photo;
+    }
+    ?>
+    <link rel="icon" href="<?= View::escape($faviconUrl) ?>" type="image/x-icon">
 </head>
 <body>

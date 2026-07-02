@@ -304,15 +304,14 @@ if ($themeMode === 'dark') {
                             <span class="font-mono text-xs md:text-sm text-creme group-hover:underline break-all"><?= htmlspecialchars($settings['contact_phone']) ?></span>
                         </a>
                     <?php endif; ?>
-                    <?php if(!empty($settings['contact_whatsapp'])): ?>
-                        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $settings['contact_whatsapp']) ?>" target="_blank" class="group flex items-center gap-2 bg-ardoise p-4 rounded-2xl md:rounded-[1rem] hover:bg-ardoise/80 hover-lift w-full sm:w-auto justify-center">
-                            <svg class="w-5 h-5 text-or shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path>
-                                <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path>
-                            </svg>
-                            <span class="font-mono text-xs md:text-sm text-creme group-hover:underline break-all">WhatsApp</span>
-                        </a>
-                    <?php endif; ?>
+                    <?php $whatsappNumber = !empty($settings['contact_whatsapp']) ? $settings['contact_whatsapp'] : '+221774611090'; ?>
+                    <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $whatsappNumber) ?>" target="_blank" class="group flex items-center gap-2 bg-ardoise p-4 rounded-2xl md:rounded-[1rem] hover:bg-ardoise/80 hover-lift w-full sm:w-auto justify-center">
+                        <svg class="w-5 h-5 text-or shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path>
+                            <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path>
+                        </svg>
+                        <span class="font-mono text-xs md:text-sm text-creme group-hover:underline break-all">WhatsApp</span>
+                    </a>
                 </div>
 
                 <form action="contact-submit.php" method="POST" class="max-w-2xl mx-auto mt-12 bg-ardoise/10 p-6 md:p-10 rounded-[2rem] border border-ardoise/30 backdrop-blur-md text-left shadow-2xl relative z-20">
