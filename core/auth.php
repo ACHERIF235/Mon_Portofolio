@@ -42,6 +42,14 @@ function decode_jwt(string $token): ?array {
 }
 
 function is_logged_in(): bool {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    if (!empty($_SESSION['admin_logged_in']) && !empty($_SESSION['admin_id'])) {
+        return true;
+    }
+
     $token = $_COOKIE['admin_token'] ?? '';
     return !empty($token) && decode_jwt($token) !== null;
 }
@@ -55,6 +63,7 @@ function require_admin(): void {
 
 function authenticate_admin(string $email, string $password): bool {
     $user = db_fetch('SELECT * FROM admin_users WHERE email = :email LIMIT 1', ['email' => $email]);
+
     if ($user && password_verify($password, $user['password_hash'])) {
         $token = encode_jwt([
             'admin_id' => $user['id'],

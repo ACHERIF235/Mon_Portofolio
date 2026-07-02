@@ -3,7 +3,7 @@ return [
     // === TYPE DE BASE DE DONNÉES ===
     // 'mysql' pour l'ancienne base (local)
     // 'supabase' pour la nouvelle base (cloud)
-    'db_type' => getenv('DB_TYPE') ?: 'supabase',
+    'db_type' => getenv('DB_TYPE') ?: ((getenv('SUPABASE_URL') || getenv('SUPABASE_KEY') || getenv('SUPABASE_ANON_KEY')) ? 'supabase' : 'mysql'),
     
     // === CONFIGURATION SUPABASE ===
     'supabase_url' => getenv('SUPABASE_URL') ?: '',

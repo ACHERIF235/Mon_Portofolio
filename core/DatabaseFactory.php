@@ -69,21 +69,20 @@ class DatabaseFactory
                     );
                     
                     if (empty($url) || empty($key)) {
-                        throw new RuntimeException("Configuration Supabase manquante dans Vercel. URL trouvée: '" . ($url ? 'Oui' : 'Non') . "', Clé trouvée: '" . ($key ? 'Oui' : 'Non') . "'. Veuillez vérifier les 'Environment Variables' dans Vercel et REDÉPLOYER.");
+                        $dbType = 'mysql';
                     }
-                    
-                    self::$instance = new SupabaseDatabase($url, $key, $authToken);
                     break;
-                    
-                case 'mysql':
-                default:
-                    self::$instance = new MySQLDatabase(
-                        $config['db_host'],
-                        $config['db_name'],
-                        $config['db_user'],
-                        $config['db_pass']
-                    );
-                    break;
+            }
+
+            if ($dbType === 'supabase') {
+                self::$instance = new SupabaseDatabase($url, $key, $authToken);
+            } else {
+                self::$instance = new MySQLDatabase(
+                    $config['db_host'],
+                    $config['db_name'],
+                    $config['db_user'],
+                    $config['db_pass']
+                );
             }
         }
         
