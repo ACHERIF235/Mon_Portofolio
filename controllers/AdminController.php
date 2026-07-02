@@ -48,20 +48,29 @@ class AdminController
             }
 
             $uploadDir = $GLOBALS['config']['uploads_dir'];
+            $uploadError = false;
             if (!empty($_FILES['profile_photo']['name'])) {
                 $filename = UploadModel::save($_FILES['profile_photo'], $GLOBALS['config']['allowed_image_types'], ['jpg', 'jpeg', 'png', 'webp'], $uploadDir);
                 if ($filename) {
                     SettingModel::save('profile_photo', $filename);
+                } else {
+                    $uploadError = true;
                 }
             }
             if (!empty($_FILES['resume_file']['name'])) {
                 $filename = UploadModel::save($_FILES['resume_file'], $GLOBALS['config']['allowed_doc_types'], ['pdf'], $uploadDir);
                 if ($filename) {
                     SettingModel::save('resume_file', $filename);
+                } else {
+                    $uploadError = true;
                 }
             }
 
-            flash('Paramètres enregistrés avec succès.');
+            if ($uploadError) {
+                flash('Les textes ont été enregistrés, mais l\'upload du fichier a échoué. Avez-vous créé le bucket public "uploads" sur Supabase ?', 'error');
+            } else {
+                flash('Paramètres enregistrés avec succès.');
+            }
             header('Location: settings.php');
             exit;
         }
