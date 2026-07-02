@@ -1,42 +1,29 @@
 {
-    "version": 2,
-    "builds": [
-        {
-            "src": "index.php",
-            "use": "vercel-php@0.6.1"
-        },
-        {
-            "src": "admin/index.php",
-            "use": "vercel-php@0.6.1"
-        },
-        {
-            "src": "admin/*.php",
-            "use": "vercel-php@0.6.1"
-        },
-        {
-            "src": "contact-submit.php",
-            "use": "vercel-php@0.6.1"
-        },
-        {
-            "src": "assets/**",
-            "use": "@vercel/static"
+    "functions": {
+        "**/*.php": {
+            "runtime": "vercel-php@0.9.2"
         }
-    ],
+    },
     "routes": [
         {
-            "src": "/admin/(.*)",
+            "src": "/admin/(.*\\.php)",
             "dest": "/admin/$1"
+        },
+        {
+            "src": "/admin/.*",
+            "dest": "/admin/index.php"
         },
         {
             "src": "/assets/(.*)",
             "dest": "/assets/$1"
         },
         {
+            "src": "/(.*\\.php)",
+            "dest": "/$1"
+        },
+        {
             "src": "/(.*)",
             "dest": "/index.php"
         }
-    ],
-    "env": {
-        "DB_TYPE": "supabase"
-    }
+    ]
 }
