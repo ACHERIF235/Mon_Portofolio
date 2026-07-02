@@ -4,6 +4,11 @@
             "runtime": "vercel-php@0.9.0"
         }
     },
+    "env": {
+        "DB_TYPE": "supabase",
+        "SUPABASE_URL": "https://apfqtfkizqsoeujhtzxe.supabase.co",
+        "SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwZnF0ZmtpenFzb2V1amh0enhlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjgzNjM3MiwiZXhwIjoyMDk4NDEyMzcyfQ.BsChTPWralKqV53qYNHAiJuzUlB2pBPOLjCd32zzDHs"
+    },
     "routes": [
         {
             "src": "/assets/(.*)",

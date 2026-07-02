@@ -16,7 +16,7 @@ class SupabaseDatabase implements DatabaseInterface
     {
         $this->url = rtrim(trim($url), '/');
         $this->key = trim($key);
-        $this->authToken = trim($authToken ?? $key);
+        $this->authToken = $authToken !== null ? trim($authToken) : '';
     }
 
     /**
@@ -28,11 +28,18 @@ class SupabaseDatabase implements DatabaseInterface
     {
         $url = "{$this->url}/rest/v1/{$table}";
         $headers = [
-            'apikey: ' . $this->key,
-            'Authorization: Bearer ' . $this->authToken,
             'Content-Type: application/json',
             'Prefer: return=representation'
         ];
+
+        if (!empty($this->key)) {
+            $headers[] = 'apikey: ' . $this->key;
+        }
+
+        $authHeaderValue = $this->resolveAuthHeaderValue();
+        if ($authHeaderValue !== '') {
+            $headers[] = 'Authorization: Bearer ' . $authHeaderValue;
+        }
 
         // Construction des filtres depuis les paramètres
         if (!empty($data['filters'])) {
@@ -159,6 +166,24 @@ class SupabaseDatabase implements DatabaseInterface
     /**
      * Extrait les filtres depuis une requête SQL (simplification)
      */
+    private function resolveAuthHeaderValue(): string
+    {
+        if (!empty($this->authToken) && $this->isJwtLike($this->authToken)) {
+            return $this->authToken;
+        }
+
+        if (!empty($this->key) && $this->isJwtLike($this->key)) {
+            return $this->key;
+        }
+
+        return '';
+    }
+
+    private function isJwtLike(string $token): bool
+    {
+        return preg_match('/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/', $token) === 1;
+    }
+
     private function extractFilters(string $sql, array $params): array
     {
         $filters = [];
