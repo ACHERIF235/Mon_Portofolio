@@ -168,7 +168,7 @@ class SupabaseDatabase implements DatabaseInterface
      */
     private function resolveAuthHeaderValue(): string
     {
-        if (!empty($this->authToken) && $this->isJwtLike($this->authToken)) {
+        if (!empty($this->authToken)) {
             return $this->authToken;
         }
 
