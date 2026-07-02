@@ -82,6 +82,50 @@ class SupabaseDatabase implements DatabaseInterface
         return json_decode($response, true) ?? [];
     }
 
+    public function uploadFile(string $bucket, string $destination, string $tmpFilePath, string $mimeType): string
+    {
+        $url = "{$this->url}/storage/v1/object/{$bucket}/{$destination}";
+        
+        $apiKeyValue = $this->resolveApiKeyValue();
+        $authHeaderValue = $this->resolveAuthHeaderValue();
+        
+        $headers = [
+            'Content-Type: ' . $mimeType
+        ];
+        if ($apiKeyValue !== '') {
+            $headers[] = 'apikey: ' . $apiKeyValue;
+        }
+        if ($authHeaderValue !== '') {
+            $headers[] = 'Authorization: Bearer ' . $authHeaderValue;
+        }
+        
+        if ($apiKeyValue !== '') {
+            $url .= (strpos($url, '?') !== false ? '&' : '?') . 'apikey=' . urlencode($apiKeyValue);
+        }
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents($tmpFilePath));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if (is_resource($ch)) {
+            curl_close($ch);
+        }
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return $this->url . '/storage/v1/object/public/' . $bucket . '/' . $destination;
+        }
+
+        $err = json_decode($response, true);
+        $msg = $err['message'] ?? $err['error'] ?? 'Erreur inconnue';
+        throw new RuntimeException("Supabase Storage HTTP $httpCode: $msg ($response)");
+    }
+
     public function query(string $sql, array $params = []): object
     {
         // Pour Supabase, on utilise l'endpoint RPC via PostgREST
