@@ -6,6 +6,7 @@ $file = $_GET['file'] ?? 'index.php';
 $file = str_replace(['../', '..\\'], '', $file);
 
 $path = __DIR__ . '/../' . $file;
+$defaultPath = __DIR__ . '/../index.php';
 
 // Define specific variables that might be needed by scripts
 $_SERVER['SCRIPT_NAME'] = '/' . $file;
@@ -13,7 +14,9 @@ $_SERVER['PHP_SELF'] = '/' . $file;
 
 if (file_exists($path) && is_file($path) && pathinfo($path, PATHINFO_EXTENSION) === 'php') {
     require $path;
+} elseif (file_exists($defaultPath) && is_file($defaultPath)) {
+    require $defaultPath;
 } else {
-    // Fallback to index
-    require __DIR__ . '/../index.php';
+    http_response_code(404);
+    echo 'Entry point not found.';
 }
