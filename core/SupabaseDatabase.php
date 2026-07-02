@@ -32,8 +32,9 @@ class SupabaseDatabase implements DatabaseInterface
             'Prefer: return=representation'
         ];
 
-        if (!empty($this->key)) {
-            $headers[] = 'apikey: ' . $this->key;
+        $apiKeyValue = $this->resolveApiKeyValue();
+        if ($apiKeyValue !== '') {
+            $headers[] = 'apikey: ' . $apiKeyValue;
         }
 
         $authHeaderValue = $this->resolveAuthHeaderValue();
@@ -52,7 +53,9 @@ class SupabaseDatabase implements DatabaseInterface
         }
         
         // Fallback: send apikey in URL in case headers are stripped by a proxy
-        $url .= (strpos($url, '?') !== false ? '&' : '?') . 'apikey=' . urlencode($this->key);
+        if ($apiKeyValue !== '') {
+            $url .= (strpos($url, '?') !== false ? '&' : '?') . 'apikey=' . urlencode($apiKeyValue);
+        }
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -166,9 +169,22 @@ class SupabaseDatabase implements DatabaseInterface
     /**
      * Extrait les filtres depuis une requête SQL (simplification)
      */
+    private function resolveApiKeyValue(): string
+    {
+        if (!empty($this->authToken) && !$this->isJwtLike($this->authToken)) {
+            return $this->authToken;
+        }
+
+        if (!empty($this->key)) {
+            return $this->key;
+        }
+
+        return '';
+    }
+
     private function resolveAuthHeaderValue(): string
     {
-        if (!empty($this->authToken)) {
+        if (!empty($this->authToken) && $this->isJwtLike($this->authToken)) {
             return $this->authToken;
         }
 
