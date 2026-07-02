@@ -94,7 +94,7 @@ function upload_file(array $file, array $allowedTypes, string $targetDir, array 
 
 function send_email(string $to, string $subject, string $body, string $replyTo = ''): bool
 {
-    $resendApiKey = getenv('RESEND_API_KEY');
+    $resendApiKey = getenv('RESEND_API_KEY') ?: ($_SERVER['RESEND_API_KEY'] ?? ($_ENV['RESEND_API_KEY'] ?? ''));
     
     // If a Resend API key is provided, use Resend API
     if ($resendApiKey) {

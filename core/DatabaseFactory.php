@@ -25,9 +25,14 @@ class DatabaseFactory
             
             switch ($dbType) {
                 case 'supabase':
-                    $url = getenv('SUPABASE_URL') ?: $config['supabase_url'] ?: '';
-                    $key = getenv('SUPABASE_KEY') ?: $config['supabase_key'] ?: '';
-                    $authToken = getenv('SUPABASE_AUTH_TOKEN') ?: $config['supabase_auth_token'] ?: null;
+                    // URL
+                    $url = getenv('SUPABASE_URL') ?: (getenv('URL_SUPABASE') ?: ($_SERVER['SUPABASE_URL'] ?? ($_SERVER['URL_SUPABASE'] ?? ($_ENV['SUPABASE_URL'] ?? ($_ENV['URL_SUPABASE'] ?? ($config['supabase_url'] ?? ''))))));
+                    
+                    // Key
+                    $key = getenv('SUPABASE_KEY') ?: (getenv('CLÉ_PUBLISHABLE_SUPABASE') ?: (getenv('CLE_PUBLISHABLE_SUPABASE') ?: ($_SERVER['SUPABASE_KEY'] ?? ($_SERVER['CLÉ_PUBLISHABLE_SUPABASE'] ?? ($_SERVER['CLE_PUBLISHABLE_SUPABASE'] ?? ($_ENV['SUPABASE_KEY'] ?? ($_ENV['CLÉ_PUBLISHABLE_SUPABASE'] ?? ($_ENV['CLE_PUBLISHABLE_SUPABASE'] ?? ($config['supabase_key'] ?? '')))))))));
+                    
+                    // Auth Token
+                    $authToken = getenv('SUPABASE_AUTH_TOKEN') ?: (getenv('CLÉ_SECRET_SUPABASE') ?: (getenv('CLE_SECRET_SUPABASE') ?: ($_SERVER['SUPABASE_AUTH_TOKEN'] ?? ($_SERVER['CLÉ_SECRET_SUPABASE'] ?? ($_SERVER['CLE_SECRET_SUPABASE'] ?? ($_ENV['SUPABASE_AUTH_TOKEN'] ?? ($_ENV['CLÉ_SECRET_SUPABASE'] ?? ($_ENV['CLE_SECRET_SUPABASE'] ?? ($config['supabase_auth_token'] ?? null)))))))));
                     
                     self::$instance = new SupabaseDatabase($url, $key, $authToken);
                     break;
