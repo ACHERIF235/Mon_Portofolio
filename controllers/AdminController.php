@@ -49,25 +49,28 @@ class AdminController
 
             $uploadDir = $GLOBALS['config']['uploads_dir'];
             $uploadError = false;
-            if (!empty($_FILES['profile_photo']['name'])) {
-                $filename = UploadModel::save($_FILES['profile_photo'], $GLOBALS['config']['allowed_image_types'], ['jpg', 'jpeg', 'png', 'webp'], $uploadDir);
-                if ($filename) {
-                    SettingModel::save('profile_photo', $filename);
-                } else {
-                    $uploadError = true;
+            $uploadErrorMessage = '';
+            
+            try {
+                if (!empty($_FILES['profile_photo']['name'])) {
+                    $filename = UploadModel::save($_FILES['profile_photo'], $GLOBALS['config']['allowed_image_types'], ['jpg', 'jpeg', 'png', 'webp'], $uploadDir);
+                    if ($filename) {
+                        SettingModel::save('profile_photo', $filename);
+                    }
                 }
-            }
-            if (!empty($_FILES['resume_file']['name'])) {
-                $filename = UploadModel::save($_FILES['resume_file'], $GLOBALS['config']['allowed_doc_types'], ['pdf'], $uploadDir);
-                if ($filename) {
-                    SettingModel::save('resume_file', $filename);
-                } else {
-                    $uploadError = true;
+                if (!empty($_FILES['resume_file']['name'])) {
+                    $filename = UploadModel::save($_FILES['resume_file'], $GLOBALS['config']['allowed_doc_types'], ['pdf'], $uploadDir);
+                    if ($filename) {
+                        SettingModel::save('resume_file', $filename);
+                    }
                 }
+            } catch (Exception $e) {
+                $uploadError = true;
+                $uploadErrorMessage = $e->getMessage();
             }
 
             if ($uploadError) {
-                flash('Les textes ont été enregistrés, mais l\'upload du fichier a échoué. Avez-vous créé le bucket public "uploads" sur Supabase ?', 'error');
+                flash('Erreur lors de l\'upload : ' . $uploadErrorMessage, 'error');
             } else {
                 flash('Paramètres enregistrés avec succès.');
             }
@@ -84,21 +87,22 @@ class AdminController
         $settings = SettingModel::all();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            error_log('theme.php POST received');
             if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+                error_log('CSRF token invalid!');
                 flash('Jeton CSRF invalide.', 'error');
                 header('Location: theme.php');
                 exit;
             }
 
             $fields = ['theme_mode', 'accent_color'];
-
             foreach ($fields as $field) {
-                if (isset($_POST[$field])) {
-                    SettingModel::save($field, sanitize_text($_POST[$field]));
-                }
+                error_log("Saving setting $field = " . ($_POST[$field] ?? ''));
+                SettingModel::save($field, sanitize_text($_POST[$field] ?? ''));
             }
 
-            flash('Thème enregistré avec succès.');
+            error_log('Theme updated successfully');
+            flash('Thème mis à jour.');
             header('Location: theme.php');
             exit;
         }
