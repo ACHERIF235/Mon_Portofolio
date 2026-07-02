@@ -40,7 +40,7 @@ class AdminController
             $fields = [
                 'hero_name_fr', 'hero_name_en', 'hero_title_fr', 'hero_title_en',
                 'hero_location_fr', 'hero_location_en', 'hero_intro_fr', 'hero_intro_en',
-                'about_text_fr', 'about_text_en', 'github_url', 'contact_email', 'contact_phone'
+                'about_text_fr', 'about_text_en', 'github_url', 'contact_email', 'contact_phone', 'contact_whatsapp'
             ];
 
             foreach ($fields as $field) {
@@ -148,6 +148,45 @@ class AdminController
         }
 
         View::render('admin/edit', ['section' => $section, 'item' => $item, 'type' => $type]);
+    }
+
+    public static function profile(): void
+    {
+        self::requireAdmin();
+        require_once __DIR__ . '/../models/AdminUserModel.php';
+        
+        $currentUser = AdminUserModel::findByEmail($_SESSION['admin_email'] ?? '');
+        if (!$currentUser) {
+            flash('Erreur de session.', 'error');
+            header('Location: login.php');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+                flash('Jeton CSRF invalide.', 'error');
+                header('Location: profile.php');
+                exit;
+            }
+
+            $email = validate_email($_POST['admin_email'] ?? '');
+            $password = !empty($_POST['admin_password']) ? $_POST['admin_password'] : null;
+
+            if (empty($email)) {
+                flash('L\'adresse email est invalide.', 'error');
+            } else {
+                if (AdminUserModel::updateCredentials((int)$currentUser['id'], $email, $password)) {
+                    $_SESSION['admin_email'] = $email;
+                    flash('Profil mis à jour avec succès.');
+                } else {
+                    flash('Erreur lors de la mise à jour du profil.', 'error');
+                }
+            }
+            header('Location: profile.php');
+            exit;
+        }
+
+        View::render('admin/profile', ['currentUser' => $currentUser]);
     }
 
     public static function save(): void

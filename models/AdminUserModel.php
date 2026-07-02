@@ -16,4 +16,21 @@ class AdminUserModel
         $user = self::findByEmail($email);
         return $user && password_verify($password, $user['password_hash']);
     }
+
+    public static function updateCredentials(int $id, string $email, ?string $password): bool
+    {
+        if ($password) {
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+            return db_query('UPDATE admin_users SET email = :email, password_hash = :hash WHERE id = :id', [
+                'email' => $email,
+                'hash' => $hash,
+                'id' => $id
+            ]);
+        } else {
+            return db_query('UPDATE admin_users SET email = :email WHERE id = :id', [
+                'email' => $email,
+                'id' => $id
+            ]);
+        }
+    }
 }

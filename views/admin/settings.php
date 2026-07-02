@@ -93,6 +93,10 @@ require __DIR__ . '/../shared/head.php';
                             <label>Téléphone</label>
                             <input type="text" name="contact_phone" value="<?= View::escape($settings['contact_phone'] ?? '+235 66 45 39 03') ?>">
                         </div>
+                        <div class="admin-form-group">
+                            <label>WhatsApp</label>
+                            <input type="text" name="contact_whatsapp" value="<?= View::escape($settings['contact_whatsapp'] ?? '+221774611090') ?>">
+                        </div>
                     </div>
                 </div>
 

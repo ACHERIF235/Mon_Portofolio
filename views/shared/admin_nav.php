@@ -13,6 +13,7 @@
             <a href="dashboard.php" title="Tableau de bord">📈 Tableau de bord</a>
             <a href="theme.php" title="Thème & Couleurs">🎨 Thème</a>
             <a href="settings.php" title="Paramètres">⚙️ Paramètres</a>
+            <a href="profile.php" title="Mon Profil">👤 Mon Profil</a>
             <a href="manage.php?type=skills" title="Compétences">⭐ Compétences</a>
             <a href="manage.php?type=projects" title="Projets">🎯 Projets</a>
             <a href="manage.php?type=education" title="Formations">🎓 Formations</a>
