@@ -25,15 +25,25 @@ class UploadModel
         $dbType = $_ENV['DB_TYPE'] ?? $config['db_type'] ?? 'mysql';
         
         if ($dbType === 'supabase') {
+            $supabaseUrl = getenv('SUPABASE_URL') ?: (getenv('URL_SUPABASE') ?: ($_SERVER['SUPABASE_URL'] ?? ($_SERVER['URL_SUPABASE'] ?? ($_ENV['SUPABASE_URL'] ?? ($_ENV['URL_SUPABASE'] ?? ($config['supabase_url'] ?? ''))))));
+            $supabaseKey = getenv('SUPABASE_KEY') ?: (getenv('SUPABASE_API_KEY') ?: (getenv('CLÉ_PUBLISHABLE_SUPABASE') ?: (getenv('CLE_PUBLISHABLE_SUPABASE') ?: ($_SERVER['SUPABASE_KEY'] ?? ($_SERVER['SUPABASE_API_KEY'] ?? ($_SERVER['CLÉ_PUBLISHABLE_SUPABASE'] ?? ($_SERVER['CLE_PUBLISHABLE_SUPABASE'] ?? ($_ENV['SUPABASE_KEY'] ?? ($_ENV['SUPABASE_API_KEY'] ?? ($_ENV['CLÉ_PUBLISHABLE_SUPABASE'] ?? ($_ENV['CLE_PUBLISHABLE_SUPABASE'] ?? ($config['supabase_key'] ?? ''))))))))))));
+            $supabaseAuthToken = getenv('SUPABASE_AUTH_TOKEN') ?: (getenv('CLÉ_SECRET_SUPABASE') ?: (getenv('CLE_SECRET_SUPABASE') ?: ($_SERVER['SUPABASE_AUTH_TOKEN'] ?? ($_SERVER['CLÉ_SECRET_SUPABASE'] ?? ($_SERVER['CLE_SECRET_SUPABASE'] ?? ($_ENV['SUPABASE_AUTH_TOKEN'] ?? ($_ENV['CLÉ_SECRET_SUPABASE'] ?? ($_ENV['CLE_SECRET_SUPABASE'] ?? ($config['supabase_auth_token'] ?? $supabaseKey)))))))));
+            
+            $supabaseUrl = rtrim(trim($supabaseUrl), '/');
+            $supabaseKey = trim($supabaseKey);
+            $supabaseAuthToken = trim($supabaseAuthToken);
+
             // Upload to Supabase Storage
-            $url = rtrim($config['supabase_url'] ?? '', '/') . '/storage/v1/object/uploads/' . $destinationName;
+            $url = $supabaseUrl . '/storage/v1/object/uploads/' . $destinationName;
+            $url .= '?apikey=' . urlencode($supabaseKey); // Fallback for headers stripping
+
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'apikey: ' . ($config['supabase_key'] ?? ''),
-                'Authorization: Bearer ' . ($config['supabase_auth_token'] ?? ''),
+                'apikey: ' . $supabaseKey,
+                'Authorization: Bearer ' . $supabaseAuthToken,
                 'Content-Type: ' . $mimeType
             ]);
             curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents($file['tmp_name']));
@@ -46,8 +56,9 @@ class UploadModel
             
             if ($httpCode >= 200 && $httpCode < 300) {
                 // Return public URL
-                return rtrim($config['supabase_url'] ?? '', '/') . '/storage/v1/object/public/uploads/' . $destinationName;
+                return $supabaseUrl . '/storage/v1/object/public/uploads/' . $destinationName;
             }
+            error_log("Supabase Storage Upload Error: HTTP $httpCode - Response: $response");
             return null;
         }
 
